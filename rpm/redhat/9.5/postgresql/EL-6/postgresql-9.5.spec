@@ -152,7 +152,9 @@ BuildRequires:	tcl-devel
 %endif
 
 BuildRequires:	readline-devel
-BuildRequires:	zlib-devel >= 1.0.4
+
+%define min_zlib_version 1.0.4
+BuildRequires:	zlib-devel >= %{min_zlib_version}
 
 %if %ssl
 BuildRequires:	openssl-devel
@@ -164,7 +166,8 @@ BuildRequires:	e2fsprogs-devel
 %endif
 
 %if %nls
-BuildRequires:	gettext >= 0.10.35
+%define min_gettext_version 0.10.35
+BuildRequires:	gettext >= %{min_gettext_version}
 %endif
 
 %if %xml
@@ -306,6 +309,25 @@ Group:		Development/Libraries
 Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 Provides:	postgresql-devel
+
+# These requires declarations should match the BuildRequires for each part of
+# the package so that RPMs that declare a BuildRequires on postgresql-devel get
+# all its dependencies transitively as well.
+%if %ssl
+Requires:  openssl-devel
+%endif
+%if %nls
+Requires:  gettext >= %{min_gettext_version}
+%endif
+%if %xml
+Requires:  libxml2-devel libxslt-devel
+%endif
+%if %pam
+Requires:  pam-devel
+%endif
+Requires:  readline-devel
+Requires:  zlib-devel >= %{min_zlib_version}
+
 
 %description devel
 The postgresql%{packageversion}-devel package contains the header files and libraries
