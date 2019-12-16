@@ -4,13 +4,13 @@
 %global postgisprevmajorversion 2.4
 %global sname	postgis
 
-%global geosversion	38
+%global geosversion	36
 %global gdalversion	30
-%global projversion	62
+%global projversion	49
 
 %global	geosinstdir	/usr/geos%{geosversion}
 %global	projinstdir	/usr/proj%{projversion}
-%global	gdalinstdir	/usr/gdal%{gdalversion}
+%global	gdalinstdir	/usr/
 
 %global	gdalminorversion	3.0.2
 
@@ -28,7 +28,8 @@
 %if 0%{?fedora} >= 27 || 0%{?rhel} >= 6 || 0%{?suse_version} >= 1315
 %ifnarch ppc64 ppc64le
 # TODO
-%{!?sfcgal:%global     sfcgal 1}
+# disabled for EL-6
+%{!?sfcgal:%global     sfcgal 0}
 %else
 %{!?sfcgal:%global     sfcgal 0}
 %endif
@@ -56,7 +57,7 @@ Patch1:		%{sname}%{postgiscurrmajorversion}-%{postgismajorversion}.1-el6pragma.p
 
 URL:		http://www.postgis.net/
 
-BuildRequires:	postgresql%{pgmajorversion}-devel, geos%{geosversion}-devel >= 3.8.0, pcre-devel
+BuildRequires:	postgresql%{pgmajorversion}-devel, geos%{geosversion}-devel >= 3.6.0, pcre-devel
 %if 0%{?suse_version}
 %if 0%{?suse_version} >= 1315
 BuildRequires:	libjson-c-devel libproj-devel
@@ -89,7 +90,7 @@ BuildRequires:	advance-toolchain-%{atstring}-devel
 %endif
 
 Requires:	postgresql%{pgmajorversion} postgresql%{pgmajorversion}-contrib
-Requires:	geos%{geosversion} >= 3.8.0 proj%{projversion} xerces-c
+Requires:	geos%{geosversion} >= 3.6.0 proj%{projversion} xerces-c
 %if 0%{?rhel} && 0%{?rhel} < 6
 Requires:	hdf5 < 1.8.7
 %else
@@ -241,7 +242,7 @@ LDFLAGS="$LDFLAGS -L%{geosinstdir}/lib64 -L%{projinstdir}/lib64"; export LDFLAGS
 %endif
 	--enable-rpath --libdir=%{pginstdir}/lib \
 	--with-geosconfig=/%{geosinstdir}/bin/geos-config \
-	--with-gdalconfig=%{gdalinstdir}/bin/gdal-config \
+	--with-gdalconfig=%{gdalinstdir}/bin/gdal-config-64 \
 	--with-projdir=%{projinstdir}
 
 SHLIB_LINK="$SHLIB_LINK" %{__make} LPATH=`%{pginstdir}/bin/pg_config --pkglibdir` shlib="%{sname}-%{postgismajorversion}.so"
@@ -385,6 +386,9 @@ fi
 %endif
 
 %changelog
+* Mon Dec 16 2019 Craig Ringer <craig.ringer@2ndquadrant.com>
+- Rebuild for PostgreSQL 12 on CentOS 6 using GEOS 3.6
+
 * Thu Sep 26 2019 Devrim Gündüz <devrim@gunduz.org> 2.5.3-6
 - Rebuild for GEOS 3.8.0, Proj 6.2.1 and GDAL 3.0.2
 
